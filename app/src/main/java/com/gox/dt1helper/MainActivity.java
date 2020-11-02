@@ -1,5 +1,6 @@
 package com.gox.dt1helper;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -14,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.gox.dt1helper.settings.SettingsActivity;
 import com.gox.dt1helper.ui.main.SectionsPagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
@@ -56,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent myIntent = new Intent(this, SettingsActivity.class);
+            startActivity(myIntent);
             return true;
         }
 
