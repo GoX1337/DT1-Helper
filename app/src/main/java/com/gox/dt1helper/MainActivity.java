@@ -11,6 +11,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,7 +19,17 @@ import android.view.View;
 import com.gox.dt1helper.settings.SettingsActivity;
 import com.gox.dt1helper.ui.main.SectionsPagerAdapter;
 
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class MainActivity extends AppCompatActivity {
+
+    public OkHttpClient client = new OkHttpClient();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        getProduct("3021760290040");
     }
 
     @Override
@@ -64,5 +76,35 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void getProduct(String barcode) {
+        String productApiUrl = "https://world.openfoodfacts.org/api/v0/product/" + barcode + ".json";
+        final Request request = new Request.Builder().url(productApiUrl).build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("onFailure");
+                    }
+                });
+            }
+            @Override
+            public void onResponse(Call call, final Response response) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            System.out.println(response.body().string());
+                        } catch (IOException ioe) {
+                            System.out.println("error");
+                        }
+                    }
+                });
+            }
+        });
     }
 }
