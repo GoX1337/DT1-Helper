@@ -1,5 +1,6 @@
 package com.gox.dt1helper;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -15,25 +16,32 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.gox.dt1helper.settings.SettingsActivity;
 import com.gox.dt1helper.ui.main.SectionsPagerAdapter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.CipherSuite;
+import okhttp3.ConnectionSpec;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.TlsVersion;
 
 public class MainActivity extends AppCompatActivity {
 
-    public OkHttpClient client = new OkHttpClient();
+    public OkHttpClient client;
+    public Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = this;
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -46,12 +54,25 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                /*Snackbar.make(view, "Call product api", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();*/
+                getProduct("3021760290040");
             }
         });
 
-        getProduct("3021760290040");
+
+        ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                .tlsVersions(TlsVersion.TLS_1_2)
+                .cipherSuites(
+                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                        CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                        CipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256)
+                .build();
+
+        client = new OkHttpClient.Builder()
+                .connectionSpecs(Collections.singletonList(spec))
+                .build();
+
     }
 
     @Override
@@ -88,7 +109,9 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println("onFailure");
+                        System.out.println("onFailure ");
+                        e.printStackTrace();
+                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -99,8 +122,10 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         try {
                             System.out.println(response.body().string());
+                            Toast.makeText(context, "API response received", Toast.LENGTH_SHORT).show();
                         } catch (IOException ioe) {
                             System.out.println("error");
+                            ioe.printStackTrace();
                         }
                     }
                 });
