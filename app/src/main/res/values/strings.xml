@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">DT1-Helper</string>
-    <string name="tab_text_1">Products</string>
-    <string name="tab_text_2">Meal</string>
-    <string name="settings">Settings</string>
+    <string name="tab_text_1">Produits</string>
+    <string name="tab_text_2">Repas</string>
+    <string name="settings">Paramètres</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>

@@ -3,22 +3,19 @@ package com.gox.dt1helper;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.tabs.TabLayout;
-
-import androidx.appcompat.widget.Toolbar;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.gox.dt1helper.settings.SettingsActivity;
@@ -80,6 +77,10 @@ public class MainActivity extends AppCompatActivity {
                 .connectionSpecs(Collections.singletonList(spec))
                 .build();
 
+        SharedPreferences prefs = getSharedPreferences(SettingsActivity.PREFS_KEY, Context.MODE_PRIVATE);
+        if(prefs == null) {
+            SettingsActivity.saveSettingsPreferences(this, "0", "0", "0");
+        }
     }
 
     @Override
