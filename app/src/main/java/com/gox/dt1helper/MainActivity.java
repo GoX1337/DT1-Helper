@@ -1,6 +1,7 @@
 package com.gox.dt1helper;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,11 +19,17 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.gox.dt1helper.entity.Product;
 import com.gox.dt1helper.settings.SettingsActivity;
 import com.gox.dt1helper.ui.main.SectionsPagerAdapter;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -41,6 +48,14 @@ public class MainActivity extends AppCompatActivity {
     private int requestCode;
     private int resultCode;
     private Intent data;
+    private List<Product> products = new ArrayList();
+    private ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+            .tlsVersions(TlsVersion.TLS_1_2)
+            .cipherSuites(
+                    CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                    CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                    CipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256)
+            .build();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,14 +79,6 @@ public class MainActivity extends AppCompatActivity {
                 integrator.initiateScan();
             }
         });
-
-        ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
-                .tlsVersions(TlsVersion.TLS_1_2)
-                .cipherSuites(
-                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-                        CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                        CipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256)
-                .build();
 
         client = new OkHttpClient.Builder()
                 .connectionSpecs(Collections.singletonList(spec))
@@ -128,11 +135,21 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         try {
-                            System.out.println(response.body().string());
-                            Toast.makeText(context, "API response received", Toast.LENGTH_SHORT).show();
+                            JSONObject jsonResponse = new JSONObject(response.body().string());
+                            Product product = new Product(jsonResponse.getJSONObject("product"));
+                            products.add(product);
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                            builder.setMessage(product.toString()).setTitle("Produit");
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+
+                            Toast.makeText(context, product.getProductName() + " (" + product.getBrand() + ")", Toast.LENGTH_SHORT).show();
                         } catch (IOException ioe) {
                             System.out.println("error");
                             ioe.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
                     }
                 });
